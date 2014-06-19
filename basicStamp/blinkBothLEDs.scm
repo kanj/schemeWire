@@ -14,6 +14,6 @@
   (HIGH 4)	
   (PAUSE 1000)
   (LOW 1)
-	(LOW 4)
+  (LOW 4)
   (PAUSE 500)
 )
