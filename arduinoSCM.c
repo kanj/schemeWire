@@ -117,48 +117,6 @@ pointer foreign_digitalWrite(scheme * sc, pointer args)
   return sc->T;
 }
 
-pointer foreign_freq(scheme * sc, pointer args)
-{
-  pointer first_arg;
-  pointer second_arg;
-  long pin, duration, Ton, i, Counter, lefreq;
-
-  if(args == sc->NIL)
-    return sc->F;
-
-  first_arg = sc->vptr->pair_car(args);
-  if(!sc->vptr->is_integer(first_arg)) {
-    return sc->F;
-  }
-
-
- args = sc->vptr->pair_cdr(args);
-  second_arg = sc->vptr->pair_car(args);
-  if(!sc->vptr->is_integer(second_arg)) {
-    return sc->F;
-   }
-  	
-  pin = sc->vptr->ivalue(first_arg);
-  duration = sc->vptr->ivalue(second_arg);
-
-
-
-
-  pinMode(pin, 1);
-  lefreq=2000;
-  Ton = 500000 / lefreq;
-  Counter = 500*duration/Ton;
-  printf("%d %d",Ton,Counter);
-  for (i=0;i<Counter;i++) {
-	digitalWrite(pin,1);
-	delayMicroseconds(Ton);
-	digitalWrite(pin, 0);
-	delayMicroseconds(Ton);
-}	
-  
-  return sc->T;
-}
-
 
 pointer foreign_millis(scheme * sc, pointer args)
 {
@@ -302,8 +260,12 @@ pointer foreign_system(scheme * sc, pointer args)
 
 /* This function gets called when TinyScheme is loading the extension */
 
-void init_wiringSCM (scheme * sc)
+void init_arduinoSCM (scheme * sc)
 {
+
+
+wiringPiSetup();
+
 sc->vptr->scheme_define(sc,sc->global_env,
                                sc->vptr->mk_symbol(sc,"delaymicroseconds"),
                                sc->vptr->mk_foreign_func(sc, foreign_delayMicroseconds));
@@ -323,10 +285,6 @@ sc->vptr->scheme_define(sc,sc->global_env,
                                sc->vptr->mk_foreign_func(sc, foreign_digitalRead));
 
 sc->vptr->scheme_define(sc,sc->global_env,
-                               sc->vptr->mk_symbol(sc,"freq"),
-                               sc->vptr->mk_foreign_func(sc, foreign_freq));
-
-sc->vptr->scheme_define(sc,sc->global_env,
                                sc->vptr->mk_symbol(sc,"digitalwrite"),
                                sc->vptr->mk_foreign_func(sc, foreign_digitalWrite));
 
@@ -334,13 +292,8 @@ sc->vptr->scheme_define(sc,sc->global_env,
                                sc->vptr->mk_symbol(sc,"millis"),
                                sc->vptr->mk_foreign_func(sc, foreign_millis));
 
-sc->vptr->scheme_define(sc,sc->global_env,
-                               sc->vptr->mk_symbol(sc,"pause"),
-                               sc->vptr->mk_foreign_func(sc, foreign_pause));
 
-sc->vptr->scheme_define(sc,sc->global_env,
-                               sc->vptr->mk_symbol(sc,"freq"),
-                               sc->vptr->mk_foreign_func(sc, foreign_freq));
+
 
 sc->vptr->scheme_define(sc,sc->global_env,
                                sc->vptr->mk_symbol(sc,"pinmode"),

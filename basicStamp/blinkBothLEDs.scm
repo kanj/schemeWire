@@ -1,9 +1,7 @@
 ;The blink program is the physical computing equivalent of the hello world program
 
 ;setup
-(load "_stamp.scm")  
-
-
+(load-extension "../bstampSCM")  
 
 
 ;loop

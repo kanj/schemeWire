@@ -23,6 +23,76 @@
 #include <dirent.h>
 #include "wiringPi.h"
 
+
+/* HIGH */
+pointer foreign_HIGH(scheme * sc, pointer args)
+{
+  pointer first_arg;
+  
+  long pin;
+
+  if(args == sc->NIL)
+    return sc->F;
+
+  first_arg = sc->vptr->pair_car(args);
+  if(!sc->vptr->is_integer(first_arg)) {
+    return sc->F;
+  }
+
+
+
+  pin = sc->vptr->ivalue(first_arg);
+  pinMode(pin, 1);
+  digitalWrite( pin, 1 );
+
+  return sc->T;
+}
+/* LOW */
+pointer foreign_LOW(scheme * sc, pointer args)
+{
+  pointer first_arg;
+  
+  long pin;
+
+  if(args == sc->NIL)
+    return sc->F;
+
+  first_arg = sc->vptr->pair_car(args);
+  if(!sc->vptr->is_integer(first_arg)) {
+    return sc->F;
+  }
+
+
+
+  pin = sc->vptr->ivalue(first_arg);
+  pinMode(pin, 1);
+  digitalWrite( pin, 0 );
+
+  return sc->T;
+}
+
+
+/* PAUSE */
+pointer foreign_PAUSE(scheme * sc, pointer args)
+{
+  pointer first_arg;
+  long msec;
+  
+  if(args == sc->NIL)
+    return sc->F;
+
+  first_arg = sc->vptr->pair_car(args);
+  if(!sc->vptr->is_integer(first_arg)) {
+    return sc->F;
+  }
+
+  msec = sc->vptr->ivalue(first_arg);
+  
+  delay(msec);
+
+  return sc->T;
+}
+
 pointer foreign_delayMicroseconds(scheme * sc, pointer args)
 {
   pointer first_arg;
@@ -302,8 +372,11 @@ pointer foreign_system(scheme * sc, pointer args)
 
 /* This function gets called when TinyScheme is loading the extension */
 
-void init_wiringSCM (scheme * sc)
+void init_picaxeSCM (scheme * sc)
 {
+
+wiringPiSetup();
+
 sc->vptr->scheme_define(sc,sc->global_env,
                                sc->vptr->mk_symbol(sc,"delaymicroseconds"),
                                sc->vptr->mk_foreign_func(sc, foreign_delayMicroseconds));
@@ -323,12 +396,12 @@ sc->vptr->scheme_define(sc,sc->global_env,
                                sc->vptr->mk_foreign_func(sc, foreign_digitalRead));
 
 sc->vptr->scheme_define(sc,sc->global_env,
-                               sc->vptr->mk_symbol(sc,"freq"),
-                               sc->vptr->mk_foreign_func(sc, foreign_freq));
+                               sc->vptr->mk_symbol(sc,"high"),
+                               sc->vptr->mk_foreign_func(sc, foreign_HIGH));
 
 sc->vptr->scheme_define(sc,sc->global_env,
-                               sc->vptr->mk_symbol(sc,"digitalwrite"),
-                               sc->vptr->mk_foreign_func(sc, foreign_digitalWrite));
+                               sc->vptr->mk_symbol(sc,"low"),
+                               sc->vptr->mk_foreign_func(sc, foreign_LOW));
 
 sc->vptr->scheme_define(sc,sc->global_env,
                                sc->vptr->mk_symbol(sc,"millis"),
@@ -336,7 +409,7 @@ sc->vptr->scheme_define(sc,sc->global_env,
 
 sc->vptr->scheme_define(sc,sc->global_env,
                                sc->vptr->mk_symbol(sc,"pause"),
-                               sc->vptr->mk_foreign_func(sc, foreign_pause));
+                               sc->vptr->mk_foreign_func(sc, foreign_PAUSE));
 
 sc->vptr->scheme_define(sc,sc->global_env,
                                sc->vptr->mk_symbol(sc,"freq"),
