@@ -171,6 +171,63 @@ pointer foreign_PAUSE(scheme * sc, pointer args)
 
   return sc->T;
 }
+
+/*PULSIN 	*/
+pointer foreign_PULSIN(scheme * sc, pointer args)
+{
+  pointer first_arg;
+  pointer second_arg;
+  long pin, state, duration, Counter;
+
+  if(args == sc->NIL)
+    return sc->F;
+
+  first_arg = sc->vptr->pair_car(args);
+  if(!sc->vptr->is_integer(first_arg)) {
+    return sc->F;
+  }
+
+
+  args = sc->vptr->pair_cdr(args);
+  second_arg = sc->vptr->pair_car(args);
+  if(!sc->vptr->is_integer(second_arg)) {
+    return sc->F;
+   }
+
+  pin = sc->vptr->ivalue(first_arg);
+  state = sc->vptr->ivalue(second_arg);
+
+  pinMode( pin, 0);
+  duration=0;
+  Counter=0;
+
+  do{
+		
+		Counter++;
+		if (digitalRead(pin) == state) 
+			break;
+		delayMicroseconds(2);
+		
+
+	} while (Counter<65535) ;
+	
+	if (Counter == 65535) 
+			return (sc->vptr->mk_integer(sc,duration));
+
+	do{
+		
+		duration++;
+		if (digitalRead(pin) != state) 
+			break;
+		delayMicroseconds(2);
+		
+
+	} while (duration<65535) ;
+	
+
+  return (sc->vptr->mk_integer(sc,duration));
+}
+
 /*PULSOUT	*/
 pointer foreign_PULSOUT(scheme * sc, pointer args)
 {
@@ -240,10 +297,10 @@ pointer foreign_RCTIME(scheme * sc, pointer args)
 	do{
 		
 		Counter++;
-		if (digitalRead(pin) != polarity) {
+		if (digitalRead(pin) != polarity) 
 			break;
 		delayMicroseconds(1);
-		}
+		
 
 	} while (Counter<65535) ;
 	
@@ -401,6 +458,10 @@ sc->vptr->scheme_define(sc,sc->global_env,
 sc->vptr->scheme_define(sc,sc->global_env,
                                sc->vptr->mk_symbol(sc,"pause"),
                                sc->vptr->mk_foreign_func(sc, foreign_PAUSE));
+/*PULSIN		*/
+sc->vptr->scheme_define(sc,sc->global_env,
+                               sc->vptr->mk_symbol(sc,"pulsin"),
+                               sc->vptr->mk_foreign_func(sc, foreign_PULSIN));
 
 /*PULSOUT		*/
 sc->vptr->scheme_define(sc,sc->global_env,
