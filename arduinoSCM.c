@@ -27,7 +27,7 @@ pointer foreign_delayMicroseconds(scheme * sc, pointer args)
 {
   pointer first_arg;
   long usec;
-  int retcode;
+  
 
   if(args == sc->NIL)
     return sc->F;
@@ -48,8 +48,8 @@ pointer foreign_delayMicroseconds(scheme * sc, pointer args)
 pointer foreign_delayMilliseconds(scheme * sc, pointer args)
 {
   pointer first_arg;
-  long msec, usec;
-  int retcode;
+  long msec;
+  
 
   if(args == sc->NIL)
     return sc->F;
@@ -69,7 +69,7 @@ pointer foreign_delayMilliseconds(scheme * sc, pointer args)
 pointer foreign_digitalRead(scheme * sc, pointer args)
 {
   pointer first_arg;
-  long pin, value;
+  long pin;
 
   if(args == sc->NIL)
     return sc->F;
@@ -121,7 +121,7 @@ pointer foreign_digitalWrite(scheme * sc, pointer args)
 pointer foreign_millis(scheme * sc, pointer args)
 {
   
-  long ret;
+  
 
   if(args != sc->NIL)
     return sc->F;
@@ -129,28 +129,6 @@ pointer foreign_millis(scheme * sc, pointer args)
   
     return (sc->vptr->mk_integer(sc,millis()));
   }
-
-
-pointer foreign_pause(scheme * sc, pointer args)
-{
-  pointer first_arg;
-  long msec, usec;
-  int retcode;
-
-  if(args == sc->NIL)
-    return sc->F;
-
-  first_arg = sc->vptr->pair_car(args);
-  if(!sc->vptr->is_integer(first_arg)) {
-    return sc->F;
-  }
-
-  msec = sc->vptr->ivalue(first_arg);
-  
-  delay(msec);
-
-  return sc->T;
-}
 
 
 pointer foreign_pinMode(scheme * sc, pointer args)
@@ -181,37 +159,6 @@ pointer foreign_pinMode(scheme * sc, pointer args)
   return sc->T;
 }
 
-pointer foreign_PULSOUT(scheme * sc, pointer args)
-{
-  pointer first_arg;
-  pointer second_arg;
-  long pin, duration;
-
-  if(args == sc->NIL)
-    return sc->F;
-
-  first_arg = sc->vptr->pair_car(args);
-  if(!sc->vptr->is_integer(first_arg)) {
-    return sc->F;
-  }
-
-
- args = sc->vptr->pair_cdr(args);
-  second_arg = sc->vptr->pair_car(args);
-  if(!sc->vptr->is_integer(second_arg)) {
-    return sc->F;
-   }
-
-  pin = sc->vptr->ivalue(first_arg);
-  duration = sc->vptr->ivalue(second_arg);
-
-  pinMode( pin, 1 );
-	digitalWrite(pin, 1);
-	delayMicroseconds( 2*duration );
-	digitalWrite(pin , 0);
-
-  return sc->T;
-}
 
 
 
@@ -233,29 +180,7 @@ pointer foreign_wiringPiSetup(scheme * sc, pointer args)
 
 
 
-pointer foreign_system(scheme * sc, pointer args)
-{
-  pointer first_arg;
-  char * command;
-  int retcode;
 
-  if(args == sc->NIL)
-    return sc->F;
-
-  first_arg = sc->vptr->pair_car(args);
-  if(!sc->vptr->is_string(first_arg))
-    return sc->F;
-  
-  command = sc->vptr->string_value(first_arg);
-  if(0 == command)
-    return sc->F;
-
-  retcode = system(command);
-  if( (127 == retcode) || (-1 == retcode) )
-    return sc->F;
-
-  return (sc->vptr->mk_integer(sc,retcode));
-}
 
 
 /* This function gets called when TinyScheme is loading the extension */
@@ -277,10 +202,6 @@ sc->vptr->scheme_define(sc,sc->global_env,
 
 
 sc->vptr->scheme_define(sc,sc->global_env,
-                               sc->vptr->mk_symbol(sc,"system"),
-                               sc->vptr->mk_foreign_func(sc, foreign_system));
-
-sc->vptr->scheme_define(sc,sc->global_env,
                                sc->vptr->mk_symbol(sc,"digitalread"),
                                sc->vptr->mk_foreign_func(sc, foreign_digitalRead));
 
@@ -291,9 +212,6 @@ sc->vptr->scheme_define(sc,sc->global_env,
 sc->vptr->scheme_define(sc,sc->global_env,
                                sc->vptr->mk_symbol(sc,"millis"),
                                sc->vptr->mk_foreign_func(sc, foreign_millis));
-
-
-
 
 sc->vptr->scheme_define(sc,sc->global_env,
                                sc->vptr->mk_symbol(sc,"pinmode"),

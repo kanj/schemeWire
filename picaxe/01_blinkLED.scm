@@ -1,5 +1,6 @@
-
-
+;01_blinkLED;
+;	Sets LED on Pin 1 blinking 
+; 	This example code is in the public domain.
 
 (load-extension "../picaxeSCM")
 
